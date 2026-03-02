@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maholy - GraphiCreator Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+                              radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.15) 0, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .logo span { background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .user-tag { background: rgba(99, 102, 241, 0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--primary); font-size: 0.9rem; }
+
+        /* --- MAIN LAYOUT --- */
+        .container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            padding: 40px 5%;
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        /* --- SIDEBAR CONTROLS --- */
+        .sidebar {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .sidebar h2 { margin-bottom: 20px; font-size: 1.2rem; }
+        .control-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4f46e5; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+
+        /* --- DISPLAY AREA --- */
+        .main-view {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .hero-text { margin-bottom: 10px; }
+        .hero-text h1 { font-size: 2.5rem; margin-bottom: 10px; }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* --- MOBILE VIEW --- */
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+            <span>Maholy</span>
+        </div>
+        <div class="user-tag">Account: Maholy Pro</div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Hanakatry ny Data</h2>
+            
+            <div class="control-group">
+                <label>Anaran'ny Graphique</label>
+                <input type="text" id="chartLabel" value="Vokatra Isam-bolana" oninput="updateChart()">
+            </div>
+
+            <div class="control-group">
+                <label>Data (sarahina faingo: 10,20,30)</label>
+                <input type="text" id="chartData" value="45, 75, 60, 90, 85" oninput="updateChart()">
+            </div>
+
+            <div class="control-group">
+                <label>Karazana Sary</label>
+                <select id="chartType" onchange="changeType()">
+                    <option value="line">Line (Courbe)</option>
+                    <option value="bar">Bar (Barre)</option>
+                    <option value="radar">Radar (Kintana)</option>
+                    <option value="doughnut">Doughnut (Cercle)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Loko mpanavaka</label>
+                <input type="color" id="chartColor" value="#6366f1" oninput="updateChart()">
+            </div>
+
+            <button class="btn btn-primary" onclick="downloadChart()">⬇️ Télécharger PNG</button>
+            <button class="btn btn-outline" onclick="resetChart()">🔄 Reset</button>
+        </aside>
+
+        <main class="main-view">
+            <div class="hero-text">
+                <h1>Racontez des histoires avec vos données</h1>
+                <p style="color: #94a3b8;">Amboary ny antontan'isanao miaraka amin'ny teknolojia Maholy Sync.</p>
+            </div>
+
+            <div class="chart-card">
+                <canvas id="maholyChart"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let myChart;
+        const ctx = document.getElementById('maholyChart').getContext('2d');
+
+        // Fanombohana ny Graphique
+        function initChart(type = 'line') {
+            if (myChart) myChart.destroy();
+            
+            myChart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: document.getElementById('chartLabel').value,
+                        data: document.getElementById('chartData').value.split(',').map(Number),
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: '#6366f1',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', font: { size: 14 } } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // Fanovana Data mivantana
+        function updateChart() {
+            const newLabel = document.getElementById('chartLabel').value;
+            const newData = document.getElementById('chartData').value.split(',').map(Number);
+            const newColor = document.getElementById('chartColor').value;
+
+            myChart.data.datasets[0].label = newLabel;
+            myChart.data.datasets[0].data = newData;
+            myChart.data.datasets[0].borderColor = newColor;
+            myChart.data.datasets[0].backgroundColor = newColor + '33'; // Mangarahara kely
+            myChart.update();
+        }
+
+        // Hanova karazana graphique
+        function changeType() {
+            const type = document.getElementById('chartType').value;
+            initChart(type);
+        }
+
+        // Télécharger ho PNG
+        function downloadChart() {
+            const link = document.createElement('a');
+            link.download = 'maholy-graphique.png';
+            link.href = document.getElementById('maholyChart').toDataURL('image/png');
+            link.click();
+        }
+
+        function resetChart() {
+            document.getElementById('chartData').value = "45, 75, 60, 90, 85";
+            updateChart();
+        }
+
+        // Rehefa misokatra ny pejy
+        window.onload = () => initChart('line');
+    </script>
+</body>
+</html>
